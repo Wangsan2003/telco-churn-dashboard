@@ -1,0 +1,8 @@
+pandas
+numpy
+plotly
+scikit-learn
+dash
+dash-bootstrap-components
+joblib
+gunicorn  # 部署 Python Web 应用到服务器所必需
