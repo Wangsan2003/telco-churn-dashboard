@@ -229,7 +229,6 @@ app.layout = dbc.Container(fluid=True, children=[
     dbc.Row([
         dbc.Col(html.H3("📊 Telco Customer Churn 仪表盘 — 王三出品"), width=8),
         dbc.Col(html.Div([
-            html.Div(f"Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", style={'fontSize': 12}),
             html.Div(f"Default Model: {default_model_name}", style={'fontSize': 12})
         ], style={'textAlign': 'right'}), width=4)
     ], align='center', className='my-2'),
@@ -452,4 +451,5 @@ def export_highrisk(n_clicks, model_select, prob_threshold):
 # -------------------------
 if __name__ == "__main__":
     # Dash >=3.0 uses app.run
+
     app.run(debug=True, host="0.0.0.0", port=8050)
