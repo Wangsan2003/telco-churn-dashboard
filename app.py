@@ -1,4 +1,4 @@
-# app_final.py
+# app2.py
 """
 Telco Customer Churn Dashboard (Final)
 Author signature displayed on page: 王三出品
@@ -134,7 +134,7 @@ df_display = df_display.copy()
 df_display['churn_prob'] = probs_full
 df_display['predicted_churn'] = np.where(df_display['churn_prob'] >= 0.5, 'High risk', 'Low risk')
 
-# Overall stats（【优化】直接用数值型Churn列计算，无需lambda判断）
+# Overall stats
 overall_churn_rate = y_all.mean()
 contract_churn_rate = df_raw.groupby('Contract')['Churn'].mean().sort_values(ascending=False)
 internet_churn_rate = df_raw.groupby('InternetService')['Churn'].mean().sort_values(ascending=False)
@@ -152,7 +152,7 @@ joblib.dump(scaler := None, "models/placeholder_scaler.pkl")  # placeholder if n
 # Plotly figures (initial)
 # -------------------------
 # Colors
-color_keep = {'0': '#3A84FF', '1': '#FF6B6B'}  # 0=No churn,1=Yes churn（已数值化）
+color_keep = {'0': '#3A84FF', '1': '#FF6B6B'}  # 0=No churn,1=Yes churn
 
 # Churn distribution
 churn_counts = df_raw['Churn'].value_counts().sort_index()  # 0/1
@@ -227,68 +227,74 @@ initial_threshold = 0.5
 
 app.layout = dbc.Container(fluid=True, children=[
     dbc.Row([
-        dbc.Col(html.H3("📊 Telco Customer Churn 仪表盘 — 王三出品"), width=8),
+        # 顶部标题栏，保持不变，但在手机上标题可能占 8 份，右侧信息占 4 份，仍能适配。
+        dbc.Col(html.H3("📊 Telco Customer Churn 仪表盘 — 王三出品"), width=8), 
         dbc.Col(html.Div([
+            html.Div(f"Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", style={'fontSize': 12}),
             html.Div(f"Default Model: {default_model_name}", style={'fontSize': 12})
         ], style={'textAlign': 'right'}), width=4)
     ], align='center', className='my-2'),
 
-    # top KPI cards
+    # top KPI cards (响应式修改: 手机上两列显示)
     dbc.Row([
+        # 原 width=3 -> 现 xs=6, md=3
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H6("总体样本数"),
             html.H4(f"{len(df_raw):,}")
-        ])), width=3),
+        ])), xs=6, md=3), 
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H6("总体流失率"),
             html.H4(f"{overall_churn_rate:.2%}")
-        ])), width=3),
+        ])), xs=6, md=3),
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H6("Logistic AUC"),
             html.H4(f"{auc_lr:.3f}")
-        ])), width=3),
+        ])), xs=6, md=3),
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H6("RandomForest AUC"),
             html.H4(f"{auc_rf:.3f}")
-        ])), width=3)
+        ])), xs=6, md=3)
     ], className='mb-3'),
 
-    # Controls
+    # Controls (响应式修改: 手机上堆叠显示)
     dbc.Row([
+        # 原 width=6 -> 现 xs=12, md=6
         dbc.Col([
             html.Label("选择用于评分的模型"),
             dcc.RadioItems(id='model-select', options=[{'label': 'Logistic Regression', 'value': 'lr'},
                                                       {'label': 'Random Forest', 'value': 'rf'}],
                            value=initial_model, inline=True),
-        ], width=6),
+        ], xs=12, md=6), 
         dbc.Col([
             html.Label("高风险阈值 (churn_prob)"),
             dcc.Slider(id='prob-threshold', min=0.1, max=0.9, step=0.01, value=initial_threshold,
                        marks={0.1: '0.1', 0.25: '0.25', 0.5: '0.5', 0.75: '0.75', 0.9: '0.9'})
-        ], width=6)
+        ], xs=12, md=6)
     ], className='mb-3'),
 
-    # Row: churn distribution & contract
+    # Row: churn distribution & contract (响应式修改: 手机上堆叠显示)
     dbc.Row([
+        # 原 width=6 -> 现 xs=12, md=6
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("客户流失分布"),
             dcc.Graph(figure=fig_churn),
             html.P("说明：展示留存（No）与流失（Yes）客户数量对比，帮助快速判断样本平衡。", style={'fontSize': 12})
-        ])), width=6),
+        ])), xs=12, md=6), 
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("合同类型 vs 流失"),
             dcc.Graph(figure=fig_contract),
             html.P("说明：观察不同合同类型下的流失分布，通常 Month-to-month（按月）流失率最高。", style={'fontSize': 12})
-        ])), width=6)
+        ])), xs=12, md=6)
     ]),
 
-    # Row: heatmap & distribution
+    # Row: heatmap & distribution (响应式修改: 手机上堆叠显示)
     dbc.Row([
+        # 原 width=6 -> 现 xs=12, md=6
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("数值特征相关性热力图"),
             dcc.Graph(figure=fig_corr),
             html.P("说明：tenure 与 Churn 呈显著负相关，MonthlyCharges 与 Churn 有弱正相关。", style={'fontSize': 12})
-        ])), width=6),
+        ])), xs=12, md=6), 
 
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("数值分布（tenure / MonthlyCharges）"),
@@ -297,32 +303,34 @@ app.layout = dbc.Container(fluid=True, children=[
                 dcc.Tab(label='MonthlyCharges 分布', children=[dcc.Graph(figure=fig_month)])
             ]),
             html.P("说明：流失客户通常集中在任期短（新客户）和月费用较高的分布区间。", style={'fontSize': 12})
-        ])), width=6)
+        ])), xs=12, md=6)
     ]),
 
-    # Row: boxplots & feature importance
+    # Row: boxplots & feature importance (响应式修改: 手机上堆叠显示)
     dbc.Row([
+        # 原 width=6 -> 现 xs=12, md=6
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("箱线图（tenure / MonthlyCharges）"),
             dcc.Graph(figure=fig_box_tenure),
             dcc.Graph(figure=fig_box_month),
             html.P("说明：箱线图显示了流失与非流失在数值特征上的分布差异及异常值。", style={'fontSize': 12})
-        ])), width=6),
+        ])), xs=12, md=6), 
 
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("特征重要性（Random Forest）"),
             dcc.Graph(figure=fig_feat_imp),
             html.P("说明：模型认为 tenure、Contract 及 MonthlyCharges 等是最重要的预测因子。", style={'fontSize': 12})
-        ])), width=6)
+        ])), xs=12, md=6)
     ]),
 
-    # Row: model performance
+    # Row: model performance (响应式修改: 手机上堆叠显示)
     dbc.Row([
+        # 原 width=6 -> 现 xs=12, md=6
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("模型性能 - ROC 曲线"),
             dcc.Graph(figure=fig_roc),
             html.P("说明：ROC 曲线展示模型的区分能力，AUC 值越大表示模型越好（接近1）。", style={'fontSize': 12})
-        ])), width=6),
+        ])), xs=12, md=6), 
 
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("混淆矩阵对比（阈值=0.5）"),
@@ -331,10 +339,10 @@ app.layout = dbc.Container(fluid=True, children=[
                 dcc.Tab(label='RandomForest', children=[dcc.Graph(figure=fig_cm_rf)])
             ]),
             html.P("说明：混淆矩阵用于查看真阳性/假阳性等分类结果详细分布。", style={'fontSize': 12})
-        ])), width=6)
+        ])), xs=12, md=6)
     ]),
 
-    # High-risk table and export
+    # High-risk table and export (保持 width=12)
     dbc.Row([
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("高风险客户（基于当前模型与阈值）"),
@@ -353,19 +361,17 @@ app.layout = dbc.Container(fluid=True, children=[
         ])), width=12)
     ], className='my-3'),
 
-    # Insights & business suggestions
+    # Insights & business suggestions (保持 width=12)
     dbc.Row([
         dbc.Col(dbc.Card(dbc.CardBody([
             html.H5("核心洞察与业务建议"),
             dcc.Markdown(
                 f"""
-**核心洞察（自动生成）**  
-- 总体流失率：**{overall_churn_rate:.2%}**。  
+**核心洞察（自动生成）** - 总体流失率：**{overall_churn_rate:.2%}**。  
 - 主要影响因子（模型重要性）：{', '.join(feat_imp_df['feature'].head(5).tolist())}。  
 - 模型表现：Logistic AUC={auc_lr:.3f}，RandomForest AUC={auc_rf:.3f}。  
 
-**推荐的商业行动（示例）**  
-1. 优先对 Month-to-month 用户做优惠/续约激励；  
+**推荐的商业行动（示例）** 1. 优先对 Month-to-month 用户做优惠/续约激励；  
 2. 对高月费用户提供个性化客服或账单优化；  
 3. 对没有 TechSupport 的用户做主动关怀；  
 4. 按价值排序（LTV × churn_prob）优先挽留高价值高风险客户。  
@@ -451,5 +457,4 @@ def export_highrisk(n_clicks, model_select, prob_threshold):
 # -------------------------
 if __name__ == "__main__":
     # Dash >=3.0 uses app.run
-
     app.run(debug=True, host="0.0.0.0", port=8050)
