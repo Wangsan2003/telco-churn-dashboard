@@ -366,7 +366,7 @@ app.layout = dbc.Container(fluid=True, children=[
             html.H5("核心洞察与业务建议"),
             dcc.Markdown(
                 f"""
-**核心洞察（自动生成）** - 总体流失率：**{overall_churn_rate:.2%}**。  
+**核心洞察** - 总体流失率：**{overall_churn_rate:.2%}**。  
 - 主要影响因子（模型重要性）：{', '.join(feat_imp_df['feature'].head(5).tolist())}。  
 - 模型表现：Logistic AUC={auc_lr:.3f}，RandomForest AUC={auc_rf:.3f}。  
 
@@ -457,4 +457,5 @@ def export_highrisk(n_clicks, model_select, prob_threshold):
 if __name__ == "__main__":
     # Dash >=3.0 uses app.run
     app.run(debug=True, host="0.0.0.0", port=8050)
+
 
