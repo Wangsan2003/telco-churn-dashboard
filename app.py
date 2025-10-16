@@ -370,7 +370,7 @@ app.layout = dbc.Container(fluid=True, children=[
 - 主要影响因子（模型重要性）：{', '.join(feat_imp_df['feature'].head(5).tolist())}。  
 - 模型表现：Logistic AUC={auc_lr:.3f}，RandomForest AUC={auc_rf:.3f}。  
 
-**推荐的商业行动（示例）** 1. 优先对 Month-to-month 用户做优惠/续约激励；  
+**推荐的商业行动** 1. 优先对 Month-to-month 用户做优惠/续约激励；  
 2. 对高月费用户提供个性化客服或账单优化；  
 3. 对没有 TechSupport 的用户做主动关怀；  
 4. 按价值排序（LTV × churn_prob）优先挽留高价值高风险客户。  
@@ -457,5 +457,6 @@ def export_highrisk(n_clicks, model_select, prob_threshold):
 if __name__ == "__main__":
     # Dash >=3.0 uses app.run
     app.run(debug=True, host="0.0.0.0", port=8050)
+
 
 
